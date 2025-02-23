@@ -1,25 +1,37 @@
 from flask import Flask, render_template, jsonify, request
 import requests
 from bs4 import BeautifulSoup
-import json
 from flask_cors import CORS  # Allow JavaScript requests
 
 app = Flask(__name__)
-CORS(app)  # Enables frontend to fetch from backend
+CORS(app, resources={r"/search": {"origins": "*"}})  # Adjust origins for security
 
 def scrape_data(query, max_results=10):
+    """Scrape search results from Bing."""
     search_results = []
     base_url = "https://www.bing.com/search"
     headers = {"User-Agent": "Mozilla/5.0"}
 
-    response = requests.get(base_url, params={"q": query}, headers=headers)
+    try:
+        response = requests.get(base_url, params={"q": query}, headers=headers, timeout=5)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        return {"error": f"Failed to fetch search results: {str(e)}"}
+
     soup = BeautifulSoup(response.text, 'html.parser')
 
     for item in soup.find_all('li', class_='b_algo'):
-        title = item.find('h2').get_text() if item.find('h2') else 'No Title'
-        link = item.find('a')['href'] if item.find('a') else '#'
-        description = item.find('p').text if item.find('p') else 'No description available.'
-        logo = f"https://www.google.com/s2/favicons?domain={link}"  
+        title_tag = item.find('h2')
+        link_tag = item.find('a')
+        desc_tag = item.find('p')
+
+        title = title_tag.get_text(strip=True) if title_tag else "No Title"
+        link = link_tag['href'] if link_tag and link_tag.has_attr('href') else "#"
+        description = desc_tag.get_text(strip=True) if desc_tag else "No description available."
+
+        # Generate favicon URL (ensure valid domain)
+        domain = link.split('/')[2] if link.startswith('http') else ''
+        logo = f"https://www.google.com/s2/favicons?domain={domain}" if domain else ""
 
         search_results.append({
             'title': title,
