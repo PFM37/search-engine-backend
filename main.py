@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, send_from_directory, jsonify, request
 import requests
 from bs4 import BeautifulSoup
 from flask_cors import CORS  # Allow JavaScript requests
@@ -48,7 +48,7 @@ def scrape_data(query, max_results=10):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('.', 'index.html')  # Serve frontend
 
 @app.route('/search', methods=['GET'])
 def search():
