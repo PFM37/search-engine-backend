@@ -2,10 +2,10 @@ import os
 from flask import Flask, send_from_directory, jsonify, request
 import requests
 from bs4 import BeautifulSoup
-from flask_cors import CORS  # Allow JavaScript requests
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/search": {"origins": "https://pfmcodes.tiiny.site"}})
+CORS(app, resources={r"/search": {"origins": "https://pfmcodes.sytes.net"}})
 
 def scrape_data(query, max_results=10):
     """Scrape search results from Bing."""
