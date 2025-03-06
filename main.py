@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/search": {"origins": "https://pfmcodes.sytes.net"}})
+CORS(app, resources={r"/search": {"origins": ["https://pfmcodes.sytes.net", "https://pfmcodes.tiiny.site"]}})
 
 def scrape_data(query, max_results=10):
     """Scrape search results from Bing."""
